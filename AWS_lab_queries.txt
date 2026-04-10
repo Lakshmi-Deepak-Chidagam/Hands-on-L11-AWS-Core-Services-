@@ -1,0 +1,58 @@
+Query 1 :
+
+SELECT * 
+FROM fixed_table
+LIMIT 10;
+
+Query 2 :
+
+SELECT 
+  category,
+  COUNT(*) AS total_orders
+FROM fixed_table
+GROUP BY category
+ORDER BY total_orders DESC
+LIMIT 10;
+
+Query 3 :
+
+SELECT 
+  fulfilment,
+  COUNT(*) AS total_orders,
+  SUM(qty) AS total_units_sold,
+  SUM(qty * 1) AS total_revenue
+FROM fixed_table
+WHERE status NOT IN ('Cancelled', 'Pending')
+GROUP BY fulfilment
+ORDER BY total_revenue DESC
+LIMIT 10;
+
+Query 4:
+
+SELECT 
+  substr(date, 1, 7) AS month,
+  COUNT(*) AS total_orders,
+  SUM(qty * 1) AS total_revenue
+FROM fixed_table
+WHERE status NOT IN ('Cancelled', 'Pending')
+GROUP BY substr(date, 1, 7)
+ORDER BY month
+LIMIT 10;
+
+Query 5 :
+
+SELECT 
+  category,
+  sku,
+  SUM(qty) AS total_units_sold,
+  SUM(qty * 1) AS total_revenue,
+  RANK() OVER (
+    PARTITION BY category 
+    ORDER BY SUM(qty * 1) DESC
+  ) AS rank
+FROM fixed_table
+WHERE status NOT IN ('Cancelled', 'Pending')
+GROUP BY category, sku
+HAVING SUM(qty) > 0
+ORDER BY category, rank
+LIMIT 50;
